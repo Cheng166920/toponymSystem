@@ -1,0 +1,297 @@
+import L from "leaflet"
+var iconUrl="/toponym/icons/"
+export const secondary=new Set(["21400","21500","21760","21770","22100","22200","22400"])
+export const n = new Map([["12200",12],["12310",12],["12600",12],["13450",13],["13460",13],["13540",13],["21400",21],["21500",21],["21610",21],["21620",21],["21721",21],["21722",21],["21723",21],["21724",21],["21731",21],["21732",21],["21760",21],["21770",21],["22100",22],["22200",22],["22400",22],["23130",23],["23140",23],["23150",23],["23220",23],["23320",23],["23530",23],["23540",23],["23630",23],["23650",23],["23660",23],["24100",24],["24210",24],["24240",24],["24250",24],["24260",24],["24230",24],["24340",24],["24440",24],["24622",24],["24630",24],["25110",25],["25120",25],["25131",25],["25132",25],["25133",25],["25200",25],["25300",25],["25400",25],["25900",25],["26100",26],["26210",26],["26230",26],["26310",26],["26320",26],["27100",27],["27200",27],["27300",27],["27400",27],["27500",27]]);
+export var iconLib={
+    getIconObj:function (ctgCode){
+        var obj="ctg_"+ctgCode
+        var i=obj
+        for(i in iconLib){
+            if(iconLib[obj].icon!=null){  //直接从图标库调用
+                return iconLib[obj].icon
+            }
+            //创建新的图标对象，并存于图标库
+            var imgsrc=iconUrl+iconLib[obj].path
+            if(secondary.has(ctgCode)){  //二级图标
+                iconLib[obj].icon = L.icon({
+                    iconUrl:imgsrc,
+                    iconSize: [7, 7],
+                    tooltipAnchor: [5,3.5],
+                    iconAnchor:[0,0]
+                });
+            }else{  //一级图标
+                iconLib[obj].icon = L.icon({
+                    iconUrl:imgsrc,
+                    iconSize: [20, 23],
+                    tooltipAnchor: [10, 0],  //[17, 0]
+                    iconAnchor:[10,11]  //[0, 11]
+                });                
+            }
+            return iconLib[obj].icon                
+        }
+    },
+    ctg_12200:{
+        path:"lake.png",
+        icon:null
+    },
+    ctg_12310:{
+        path:"river_island.png",
+        icon:null
+    },
+    ctg_12600:{
+        path:"spring.png",
+        icon:null
+    },
+    ctg_13450:{
+        path:"mountain.png",
+        icon:null
+    },
+    ctg_13460:{
+        path:"massif.png",
+        icon:null
+    },
+    ctg_13540:{
+        path:"forest.png",
+        icon:null
+    },
+    ctg_21400:{
+        path:"county.png",
+        icon:null
+    },
+    ctg_21500:{
+        path:"village.png",
+        icon:null
+    },
+    ctg_21610:{
+        path:"mass_organization.png",
+        icon:null
+    },
+    ctg_21620:{
+        path:"mass_organization.png",
+        icon:null
+    },
+    ctg_21721:{
+        path:"AFAF_area.png",
+        icon:null
+    },
+    ctg_21722:{
+        path:"AFAF_area.png",
+        icon:null
+    },
+    ctg_21723:{
+        path:"AFAF_area.png",
+        icon:null
+    },
+    ctg_21724:{
+        path:"AFAF_area.png",
+        icon:null
+    },
+    ctg_21731:{
+        path:"industrial_area.png",
+        icon:null
+    },
+    ctg_21732:{
+        path:"industrial_area.png",
+        icon:null
+    },
+    ctg_21760:{
+        path:"ground_piece.png",
+        icon:null
+    },
+    ctg_21770:{
+        path:"region.png",
+        icon:null
+    },
+    ctg_22100:{
+        path:"urban_settlement.png",
+        icon:null
+    },
+    ctg_22200:{
+        path:"rural_settlement.png",
+        icon:null
+    },
+    ctg_22400:{
+        path:"AFP_site.png",
+        icon:null
+    },
+    ctg_23130:{
+        path:"harbor.png",
+        icon:null
+    },
+    ctg_23140:{
+        path:"shiplock.png",
+        icon:null
+    },
+    ctg_23150:{
+        path:"ferry.png",
+        icon:null
+    },
+    ctg_23220:{
+        path:"coach_station.png",
+        icon:null
+    },
+    ctg_23320:{
+        path:"train_station.png",
+        icon:null
+    },
+    ctg_23530:{
+        path:"bus_station.png",
+        icon:null
+    },
+    ctg_23540:{
+        path:"parking_lot.png",
+        icon:null
+    },
+    ctg_23630:{
+        path:"gang_maintenance.png",
+        icon:null
+    },
+    ctg_23650:{
+        path:"roundabout.png",
+        icon:null
+    },
+    ctg_23660:{
+        path:"gas_station.png",
+        icon:null
+    },
+    ctg_24100:{
+        path:"well.png",
+        icon:null
+    },
+    ctg_24210:{
+        path:"pool.png",
+        icon:null
+    },
+    ctg_24240:{
+        path:"pool.png",
+        icon:null
+    },
+    ctg_24250:{
+        path:"pool.png",
+        icon:null
+    },
+    ctg_24260:{
+        path:"pool.png",
+        icon:null
+    },
+    ctg_24230:{
+        path:"reservoir.png",
+        icon:null
+    },
+    ctg_24340:{
+        path:"pump_station.png",
+        icon:null
+    },
+    ctg_24440:{
+        path:"gate_dam.png",
+        icon:null
+    },
+    ctg_24622:{
+        path:"hydropower_station.png",
+        icon:null
+    },
+    ctg_24630:{
+        path:"converting_station.png",
+        icon:null
+    },
+    ctg_25110:{
+        path:"memorial_site.png",
+        icon:null
+    },
+    ctg_25120:{
+        path:"memorial_site.png",
+        icon:null
+    },
+    ctg_25131:{
+        path:"memorial_site.png",
+        icon:null
+    },
+    ctg_25132:{
+        path:"memorial_site.png",
+        icon:null
+    },
+    ctg_25133:{
+        path:"memorial_site.png",
+        icon:null
+    },
+    ctg_25200:{
+        path:"park.png",
+        icon:null
+    },
+    ctg_25300:{
+        path:"scenic_spot.png",
+        icon:null
+    },
+    ctg_25400:{
+        path:"natural_reserve.png",
+        icon:null
+    },
+    ctg_25900:{
+        path:"exhibition.png",
+        icon:null
+    },
+    ctg_26100:{
+        path:"house.png",
+        icon:null
+    },
+    ctg_26210:{
+        path:"pavilion.png",
+        icon:null
+    },
+    ctg_26230:{
+        path:"tablet.png",
+        icon:null
+    },
+    ctg_26310:{
+        path:"square.png",
+        icon:null
+    },
+    ctg_26320:{
+        path:"gym.png",
+        icon:null
+    },
+    ctg_27100:{
+        path:"government.png",
+        icon:null
+    },
+    ctg_27200:{
+        path:"social_organization.png",
+        icon:null
+    },
+    ctg_27300:{
+        path:"public_institution.png",
+        icon:null
+    },
+    ctg_27400:{
+        path:"enterprise.png",
+        icon:null
+    },
+    ctg_27500:{
+        path:"military_region.png",
+        icon:null
+    },
+    ctg_dp:{  //门牌doorPlate
+        path:"number_plate.png",
+        icon:null
+    },
+    ctg_bp:{  //边界点boundaryPoint
+        path:"boundary_point.png",
+        icon:null
+    },
+    ctg_bs:{  //界桩boundaryStone
+        path:"boundary_stone.png",
+        icon:null
+    },
+    ctg_ti:{  //三交点tripleIntersection
+        path:"triple_intersection.png",
+        icon:null
+    },
+    ctg_sgn:{  //地名标志点sign
+        path:"toponym_sign.png",
+        icon:null
+    },
+    ctg_ss:{  //被选中状态(门牌)selectedStatus
+        path:"selected_status.png",
+        icon:null
+    }
+}

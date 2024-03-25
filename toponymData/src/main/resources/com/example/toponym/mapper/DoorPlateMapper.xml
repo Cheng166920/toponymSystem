@@ -1,0 +1,401 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.DoorPlateMapper">
+    <!--    全文检索字符-->
+    <select id="selectFtsChar" parameterType="String" resultType="com.example.toponym.model.DoorPlateElement">
+        select *,ST_AsGeoJson(geometry) as geom
+        from "T_S_DOORPLATE"
+        where uid in (
+            SELECT uid FROM "T_A_DOORPLATE"
+            WHERE
+            to_tsvector('english',fts_char) @@ to_tsquery('english',#{query}))
+
+    </select>
+
+    <!--    全文检索词语-->
+    <select id="selectFtsWord" parameterType="String" resultType="com.example.toponym.model.DoorPlateElement">
+        select *,ST_AsGeoJson(geometry) as geom
+        from "T_S_DOORPLATE"
+        where uid in (
+            SELECT uid FROM "T_A_DOORPLATE"
+            WHERE
+            to_tsvector('english',fts_word) @@ to_tsquery('english',#{query}))
+
+    </select>
+
+    <!--    不分词全文检索-->
+    <select id="selectWord" parameterType="String" resultType="com.example.toponym.model.DoorPlateElement">
+        select *,ST_AsGeoJson(geometry) as geom
+        from "T_S_DOORPLATE"
+        WHERE #{query} IN (road, road_direction, estate,construction,building,unit,doorplate,"owner")
+    </select>
+
+    <!--    分类检索-->
+    <select id="catQuery" parameterType="String" resultType="com.example.toponym.model.DoorPlateElement" >
+        select *,ST_AsGeoJson(geometry) as geom
+        from "T_S_DOORPLATE"
+        where
+            ${field} = #{value}
+
+    </select>
+
+    <!--    按id检索-->
+    <select id="findById" parameterType="String" resultType="com.example.toponym.model.DoorPlateElement" >
+        select *,ST_AsGeoJson(geometry) as geom
+        from "T_S_DOORPLATE"
+        where
+            uid = #{id}
+    </select>
+
+    <!--    获取字段对应的值-->
+    <select id="getFiledValue" parameterType="String" resultType="String" >
+        SELECT DISTINCT ${field} FROM "T_S_DOORPLATE"
+        WHERE 1 = 1
+        <choose>
+            <when test="field == 'ST_AsGeoJson(geometry) as geom'">
+                and geometry IS NOT NULL
+            </when>
+            <otherwise>
+                and ${field} IS NOT NULL
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <!--    检验门牌数据有效性-->
+    <select id="isValid" resultType="Boolean">
+        SELECT EXISTS(SELECT *
+                      FROM "T_S_DOORPLATE"
+                      WHERE uid = #{uid})
+    </select>
+
+    <!--    检验待插入数据有效性-->
+    <select id="isInsertValid" parameterType="com.example.toponym.model.DoorPlateElement" resultType="String">
+        SELECT uid FROM "T_S_DOORPLATE"
+        <where>
+            <if test="province != null and province != ''">
+                "province" = #{province}
+            </if>
+            <if test="city != null and city != ''">
+                and "city" = #{city}
+            </if>
+            <if test="district != null and district != ''">
+                and "district" = #{district}
+            </if>
+            <if test="township != null and township != ''">
+                and "township" = #{township}
+            </if>
+            <if test="village != null and village != ''">
+                and "village" = #{village}
+            </if>
+            <if test="road != null and road != ''">
+                and "road" = #{road}
+            </if>
+            <if test="road_direction != null and road_direction != ''">
+                and "road_direction" = #{road_direction}
+            </if>
+            <if test="estate != null and estate != ''">
+                and "estate" = #{estate}
+            </if>
+            <if test="building != null and building != ''">
+                and "building" = #{building}
+            </if>
+            <if test="unit != null and unit != ''">
+                and "unit" = #{unit}
+            </if>
+            <if test="doorplate != null and doorplate != ''">
+                and "doorplate" = #{doorplate}
+            </if>
+            <if test="doorplate_sub != null and doorplate_sub != ''">
+                and "doorplate_sub" = #{doorplate_sub}
+            </if>
+            <if test="room != null and room != ''">
+                and "room" = #{room}
+            </if>
+            <if test="house_license != null and house_license != ''">
+                and "house_license" = #{house_license}
+            </if>
+            <if test="license_time != null and license_time != ''">
+                and "license_time" = to_timestamp(#{license_time},'yyyy-MM-DD hh24:mi:ss')
+            </if>
+            <if test="category != null and category != ''">
+                and "category" = #{category}
+            </if>
+            <if test="owner != null and owner != ''">
+                and "owner" = #{owner}
+            </if>
+            <if test="owner_phone != null and owner_phone != ''">
+                and "owner_phone" = #{owner_phone}
+            </if>
+            <if test="construction != null and construction != ''">
+                and "construction" = #{construction}
+            </if>
+            <if test="principal != null and principal != ''">
+                and "principal" = #{principal}
+            </if>
+            <if test="principal_phone != null and principal_phone != ''">
+                and "principal_phone" = #{principal_phone}
+            </if>
+            <if test="collect_time != null and collect_time != ''">
+                and "collect_time" = to_timestamp(#{collect_time},'yyyy-MM-DD hh24:mi:ss')
+            </if>
+            <if test="point_toponym != null and point_toponym != ''">
+                and "point_toponym" = #{point_toponym}
+            </if>
+            <if test="linear_toponym != null and linear_toponym != ''">
+                and "linear_toponym" = #{linear_toponym}
+            </if>
+            <if test="geom != null and geom != ''">
+                and "geometry" = ST_SetSRID(st_geomfromgeojson(#{geom,jdbcType=OTHER,typeHandler=com.example.toponym.common.JsonbTypeHandler}),4490)
+            </if>
+            <if test="remarks != null and remarks != ''">
+                and "remarks" = #{remarks}
+            </if>
+            <if test="photo_name != null and photo_name != ''">
+                and "photo_name" = #{photo_name}
+            </if>
+        </where>
+    </select>
+
+    <!--    添加应用表数据-->
+    <insert id="addAppDoorplate" parameterType="com.example.toponym.model.DoorPlateAElement">
+        insert into "T_A_DOORPLATE"(uid,fts_word,fts_char)
+        values (#{uid},#{fts_word},#{fts_char})
+    </insert>
+
+    <!--    添加原表数据-->
+    <insert id="addSourceDoorplate" parameterType="com.example.toponym.model.DoorPlateElement">
+        insert into "T_S_DOORPLATE"(uid, province, city, district, township, village,
+                                     road, road_direction, estate, building, unit, doorplate,
+                                     doorplate_sub, room, house_license, license_time, category,
+                                     owner, owner_phone, construction, principal, principal_phone,
+                                     collect_time, linear_toponym, point_toponym, remarks, photo_name, geometry)
+        values (#{uid}, #{province}, #{city}, #{district}, #{township}, #{village}, #{road}, #{road_direction},
+                #{estate}, #{building}, #{unit}, #{doorplate}, #{doorplate_sub}, #{room}, #{house_license},
+                to_timestamp(#{license_time},'yyyy-MM-DD hh24:mi:ss'), #{category}, #{owner}, #{owner_phone},
+                #{construction}, #{principal},#{principal_phone}, to_timestamp(#{collect_time},'yyyy-MM-DD hh24:mi:ss'),
+                #{linear_toponym}, #{point_toponym}, #{remarks},#{photo_name},
+                ST_SetSRID(st_geomfromgeojson(#{geom,jdbcType=OTHER,typeHandler=com.example.toponym.common.JsonbTypeHandler}),4490))
+    </insert>
+
+
+    <!--    删除数据-->
+    <delete id="deleteDoorplate" parameterType="String">
+        delete from "T_S_DOORPLATE"
+        where uid = #{uid}
+    </delete>
+
+    <!--     修改原数据-->
+    <update id="updateSourceDoorplate" parameterType="com.example.toponym.model.DoorPlateElement">
+        update "T_S_DOORPLATE"
+        <set>
+            <if test="road != null and road != ''">
+                "road" = #{road},
+            </if>
+            <if test="road_direction != null and road_direction != ''">
+                "road_direction" = #{road_direction},
+            </if>
+            <if test="estate != null and estate != ''">
+                "estate" = #{estate},
+            </if>
+            <if test="building != null and building != ''">
+                "building" = #{building},
+            </if>
+            <if test="unit != null and unit != ''">
+                "unit" = #{unit},
+            </if>
+            <if test="doorplate != null and doorplate != ''">
+                "doorplate" = #{doorplate},
+            </if>
+            <if test="doorplate_sub != null and doorplate_sub != ''">
+                "doorplate_sub" = #{doorplate_sub},
+            </if>
+            <if test="room != null and room != ''">
+                "room" = #{room},
+            </if>
+            <if test="house_license != null and house_license != ''">
+                "house_license" = #{house_license},
+            </if>
+            <if test="license_time != null and license_time != ''">
+                "license_time" = to_timestamp(#{license_time},'yyyy-MM-DD hh24:mi:ss'),
+            </if>
+            <if test="category != null and category != ''">
+                "category" = #{category},
+            </if>
+            <if test="owner != null and owner != ''">
+                "owner" = #{owner},
+            </if>
+            <if test="owner_phone != null and owner_phone != ''">
+                "owner_phone" = #{owner_phone},
+            </if>
+            <if test="construction != null and construction != ''">
+                "construction" = #{construction},
+            </if>
+            <if test="principal != null and principal != ''">
+                "principal" = #{principal},
+            </if>
+            <if test="principal_phone != null and principal_phone != ''">
+                "principal_phone" = #{principal_phone},
+            </if>
+            <if test="collect_time != null and collect_time != ''">
+                "collect_time" = to_timestamp(#{collect_time},'yyyy-MM-DD hh24:mi:ss'),
+            </if>
+            <if test="point_toponym != null and point_toponym != ''">
+                "point_toponym" = #{point_toponym},
+            </if>
+            <if test="linear_toponym != null and linear_toponym != ''">
+                "linear_toponym" = #{linear_toponym},
+            </if>
+            <if test="geom != null and geom != ''">
+                "geometry" = ST_SetSRID(st_geomfromgeojson(#{geom,jdbcType=OTHER,typeHandler=com.example.toponym.common.JsonbTypeHandler}),4490),
+            </if>
+            <if test="remarks != null and remarks != ''">
+                "remarks" = #{remarks},
+            </if>
+            <if test="photo_name != null and photo_name != ''">
+                "photo_name" = #{photo_name},
+            </if>
+        </set>
+        WHERE "uid" = #{uid}
+    </update>
+
+    <!--     修改应用数据-->
+    <update id="updateAppDoorplate" parameterType="com.example.toponym.model.DoorPlateAElement">
+        update "T_A_DOORPLATE"
+        <set>
+            <if test="fts_word != null and fts_word != ''">
+                "fts_word" = #{fts_word},
+            </if>
+            <if test="fts_char != null and fts_char != ''">
+                "fts_char" = #{fts_char},
+            </if>
+        </set>
+        WHERE "uid" = #{uid}
+    </update>
+
+
+    <!--    添加待审核数据-->
+    <insert id="addAction" parameterType="com.example.toponym.model.Action" useGeneratedKeys="true" keyProperty="GID">
+        insert into "T_P_DOORPLATE"("CONTENT","ACTION","ACTION_STATUS","REVIEW")
+        values (#{CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{ACTION},'未完成','未审核')
+    </insert>
+    <!--    地址审批-->
+    <update id="updateReview">
+        update "T_P_DOORPLATE" SET "REVIEW" = #{review} , "ACTION_STATUS" = '已完成'
+        where "GID" = #{gid}
+    </update>
+
+    <!--    更新生产表-->
+    <update id="updateAction" useGeneratedKeys="true" keyProperty="GID">
+        update "T_P_DOORPLATE"
+        <set>
+            <if test="CONTENT != null">
+                "CONTENT" = #{CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},
+            </if>
+            <if test="ACTION != null">
+                "ACTION" = #{ACTION},
+            </if>
+                "REVIEW" = '未审核',
+                "ACTION_STATUS" = '未完成',
+                "CREATE_TIME" = now(),
+        </set>
+        WHERE "GID" = #{GID}
+    </update>
+
+    <!--    删除数据-->
+    <delete id="deleteAction" parameterType="Integer">
+        delete from "T_P_DOORPLATE"
+        where "GID" = #{gid}
+    </delete>
+
+    <!--    查看所有数据-->
+    <select id="findAll" resultType="com.example.toponym.model.Action">
+        SELECT *
+        FROM "T_P_DOORPLATE" order by "CREATE_TIME" desc
+    </select>
+    <!--    获取单条数据-->
+    <select id="findByGID" parameterType="Long" resultType="com.example.toponym.model.Action">
+        SELECT *
+        FROM "T_P_DOORPLATE"
+        where "GID" = #{gid}
+    </select>
+
+    <!--    获取单条地址历史变更信息-->
+    <select id="findHistoryByUID" parameterType="String" resultType="com.example.toponym.model.DoorPlateHistory">
+        SELECT *
+        FROM "T_S_DOORPLATE_HISTORY"
+        where uid = #{uid} and change_jsonb IS NOT NULL order by "change_time" desc
+    </select>
+
+    <!--    获取单条地址历史变更详细信息-->
+    <select id="findHistoryDetail" parameterType="String" resultType="com.example.toponym.model.DoorPlateRecord">
+        SELECT *
+        FROM "T_S_DOORPLATE_LOG"
+        <where>
+            uid = #{uid}
+            <if test="change_time != null and change_time != ''">
+                and change_time = to_timestamp(#{change_time},'yyyy-MM-DD hh24:mi:ss')
+            </if>
+            order by "change_time" desc
+        </where>
+    </select>
+
+    <!--    获取行政区编码-->
+    <select id="selectAdministration" parameterType="com.example.toponym.model.DoorPlateElement" resultType="String">
+        SELECT min(cast(code as BIGINT)) FROM "T_S_ADMINISTRATION"
+        <where>
+            province = #{province}
+            <if test="city != null">
+                and city = #{city}
+            </if>
+            <if test="district != null">
+                and district = #{district}
+            </if>
+            <if test="township != null">
+                and township = #{township}
+            </if>
+            <if test="village != null">
+                and village = #{village}
+            </if>
+        </where>
+    </select>
+
+    <!--    获取最大已有编码-->
+    <select id="selectMaxUID" parameterType="com.example.toponym.model.DoorPlateElement" resultType="Long">
+        SELECT max(cast(uid as BIGINT)) FROM "T_S_DOORPLATE"
+        <where>
+            province = #{province}
+            <if test="city != null">
+                and city = #{city}
+            </if>
+            <if test="district != null">
+                and district = #{district}
+            </if>
+            <if test="township != null">
+                and township = #{township}
+            </if>
+            <if test="village != null">
+                and village = #{village}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectCity" resultType="java.util.LinkedHashMap">
+        SELECT name,code
+        FROM "T_S_CITY"
+        WHERE pid = #{pid}
+    </select>
+
+    <!--    获取行政区编码-->
+    <select id="selectCityCode" parameterType="com.example.toponym.model.DoorPlateElement" resultType="String">
+        SELECT code FROM "T_S_CITY" WHERE pid IN (
+            SELECT code FROM "T_S_CITY" WHERE pid IN (
+                SELECT code FROM "T_S_CITY" WHERE pid IN (
+                    SELECT code FROM "T_S_CITY" WHERE pid IN (
+                        SELECT code FROM "T_S_CITY" WHERE name= #{province})
+                                              and name = #{city})
+                                          and name = #{district})
+                                   and name = #{township})
+                                and name = #{village}
+    </select>
+
+</mapper>

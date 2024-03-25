@@ -1,0 +1,213 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.BoundaryMapper">
+    <select id="findBoundary" parameterType="String" resultType="net.sf.json.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "IDENTIFICATION_CODE","BOUNDARY_NAME","BOUNDARY_RANK","BOUNDARY_LENGTH","DISPUTE_OR_NOT"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "B_A_BOUNDARY"
+        where "LEVEL" = #{level} and "TYPE" in ('村级管理线','乡级界线','县级界线','市级界线')
+        ) AS f
+        ) AS fc
+    </select>
+
+    <select id="findBoundaryStake" resultType="net.sf.json.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "IDENTIFICATION_CODE","TYPE","BOUNDARY_CODE","BOUNDARY_STAKE_NUMBER"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "B_A_BOUNDARY"
+        where "TYPE" like '%界桩%'
+        ) AS f
+        ) AS fc
+
+    </select>
+
+    <select id="findBoundaryPoint" resultType="net.sf.json.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "IDENTIFICATION_CODE","TYPE","BOUNDARY_POINT","BOUNDARY_CODE","LONGITUDE","LATITUDE","RANK","LOCATION_DESCRIPTION","ABSCISSA","ORDINATE"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "B_A_BOUNDARY"
+        where "TYPE" = '边界点'
+        ) AS f
+        ) AS fc
+    </select>
+
+    <select id="findTripleNode" resultType="net.sf.json.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "IDENTIFICATION_CODE","TYPE","TRIPLE_INTERSECTION_POINT","BOUNDARY_CODE","LONGITUDE","LATITUDE","RANK","LOCATION_DESCRIPTION","ABSCISSA","ORDINATE"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "B_A_BOUNDARY"
+        where "TYPE" = '三交点'
+        ) AS f
+        ) AS fc
+    </select>
+
+    <select id="getBoundary"  resultType="java.util.LinkedHashMap">
+        SELECT "IDENTIFICATION_CODE" as "CODE","GEOM"->>'type' as "TYPE",ST_AsText(ST_GeomFromGeoJSON("GEOM")) as "GEOM"
+        FROM "B_A_BOUNDARY"
+        WHERE "IDENTIFICATION_CODE" = #{IDENTIFICATION_CODE} and "LEVEL" = '0km'
+    </select>
+
+    <select id="findField"  resultType="java.lang.String">
+        SELECT "FIELD"
+        FROM "B_S_METADATA"
+        WHERE "TABLE_EXPLAIN" = #{table}
+    </select>
+
+    <select id="findInfo" resultType="java.util.LinkedHashMap">
+        SELECT
+        <foreach collection="params" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        FROM "B_A_BOUNDARY"
+        WHERE "TYPE" = #{type} and "LEVEL" = '0km'
+    </select>
+
+    <select id="getBoundaryType" resultType="java.lang.String">
+        SELECT "TYPE"
+        FROM "B_A_BOUNDARY"
+        WHERE "BOUNDARY_NAME" like concat('%',#{boundaryName},'%') and "LEVEL" = '0km'
+        ORDER BY "TYPE" LIMIT 1
+    </select>
+
+    <select id="findByName" resultType="java.util.LinkedHashMap">
+        SELECT
+        <foreach collection="params" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        FROM "B_A_BOUNDARY"
+        WHERE "BOUNDARY_NAME" like concat('%',#{boundaryName},'%') and "LEVEL" = '0km'
+    </select>
+
+    <select id="getFile"  resultType="java.util.LinkedHashMap">
+        SELECT "${fileType}","BOUNDARY_NAME"
+        FROM "${table}"
+        where "IDENTIFICATION_CODE" = #{code}
+    </select>
+
+    <select id="getTableName" resultType="java.lang.String">
+        SELECT "TYPE" FROM "B_A_BOUNDARY"
+        WHERE 1=1
+        <if test="code != null" >
+            and "IDENTIFICATION_CODE" = #{code}
+        </if>
+        ORDER BY "TYPE" LIMIT 1
+    </select>
+
+    <select id="findByCode" resultType="java.util.LinkedHashMap">
+        SELECT
+        <foreach collection="params" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        FROM "B_A_BOUNDARY"
+        WHERE "IDENTIFICATION_CODE" = #{code} and "LEVEL" = '0km'
+    </select>
+
+    <insert id="addRequest" parameterType="com.example.toponym.model.Action" useGeneratedKeys="true" keyProperty="GID">
+        <selectKey keyProperty="GID" resultType="Integer" order="AFTER">
+            SELECT currval('"B_P_action_GID_seq"')
+        </selectKey>
+        insert into "B_P_ACTION"("CONTENT","ACTION","ACTION_STATUS","REVIEW")
+        values (#{CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},'界线申领','未完成','未审核')
+    </insert>
+
+    <!--    查看所有数据-->
+    <select id="findAll" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "B_P_ACTION"
+        ORDER BY "GID"
+    </select>
+    <!--    查看单条数据-->
+    <select id="findByGID" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "B_P_ACTION"
+        WHERE "GID" = #{gid}
+    </select>
+
+    <select id="DownloadData" resultType="java.util.LinkedHashMap">
+        SELECT "GID","CONTENT"->>'IDENTIFICATION_CODE' as "CODE","CONTENT"->>'TYPE' as "TYPE","CONTENT"->>'GEOM' as "GEOM"
+        FROM "B_P_ACTION"
+        WHERE "GID" = #{gid} and "REVIEW" = '审核通过'
+    </select>
+
+    <update id="updateReview" useGeneratedKeys="true">
+        update "B_P_ACTION"
+        <set>
+            <if test="review != null">
+                "REVIEW" = #{review},
+            </if>
+        </set>
+        WHERE "GID" = #{gid}
+    </update>
+
+    <delete id="deleteRequest" parameterType="Integer">
+        delete from "B_P_ACTION"
+        where "GID" = #{gid}
+    </delete>
+
+    <update id="updateRequest" useGeneratedKeys="true">
+        update "B_P_ACTION"
+        <set>
+            <if test="action_status != null">
+                "ACTION_STATUS" = #{action_status},
+            </if>
+        </set>
+        WHERE "GID" = #{gid}
+    </update>
+
+</mapper>

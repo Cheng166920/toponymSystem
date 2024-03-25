@@ -1,0 +1,103 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.ExtentMapper">
+    <select id="findPointByExtent" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "DIAGRAM_NAME","CATEGORY_CODE","IDENTIFICATION_CODE"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "T_A_COMMON_INFO"
+        where ST_Intersects(ST_GeomFromGeoJSON("GEOM"), ST_GeomFromText(#{polygon},4326)) and "GEOM"->>'type' = 'Point'
+        ) AS f
+        ) AS fc
+    </select>
+    <select id="findLineByExtent" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "DIAGRAM_NAME","CATEGORY_CODE","IDENTIFICATION_CODE"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "T_A_COMMON_INFO"
+        where ST_Intersects(ST_GeomFromGeoJSON("GEOM"), ST_GeomFromText(#{polygon},4326)) and "GEOM"->>'type' = 'MultiLineString'
+        ) AS f
+        ) AS fc
+    </select>
+    <select id="findDoorplateByExtent" parameterType="String" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+                 SELECT
+                     'FeatureCollection' AS type,
+                     json_agg(f) AS features
+                 FROM (
+                          SELECT
+                              'Feature' AS type,
+                              (
+                                  SELECT
+                                      row_to_json(t)
+                                  FROM (
+                                           SELECT
+                                               "uid","district","township","village",
+                                                  COALESCE(road, 'null') as road,
+                                                  COALESCE(doorplate, 'null') as doorplate,
+                                                  COALESCE(doorplate_sub, 'null') as doorplate_sub
+                                       ) AS t
+                              ) AS properties,
+                              ST_AsGeoJSON("geometry")::json as geometry
+                          FROM "T_S_DOORPLATE"
+                          where ST_Intersects("geometry", ST_GeomFromText(#{polygon},4490))
+                      ) AS f
+             ) AS fc
+    </select>
+
+    <select id="findCategory" parameterType="Integer"  resultType="java.lang.String">
+        SELECT "CATEGORY" FROM "T_S_METADATA"
+        WHERE "RESPONSE_CATEGORY" &lt;= #{scale}
+    </select>
+
+    <select id="findSign" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT row_to_json(fc)
+        FROM (
+        SELECT
+        'FeatureCollection' AS type,
+        json_agg(f) AS features
+        FROM (
+        SELECT
+        'Feature' AS type,
+        (
+        SELECT
+        row_to_json(t)
+        FROM (
+        SELECT
+        "IDENTIFICATION_CODE","DIAGRAM_NAME","ADMINISTRATIVE_DISTRICT"
+        ) AS t
+        ) AS properties,
+        "GEOM" as geometry
+        FROM "T_A_SIGN_INFO"
+        ) AS f
+        ) AS fc
+    </select>
+</mapper>

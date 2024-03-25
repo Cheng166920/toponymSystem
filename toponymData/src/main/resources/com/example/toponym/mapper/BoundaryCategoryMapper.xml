@@ -1,0 +1,19 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.BoundaryCategoryMapper">
+    <select id="findAll" resultType="com.example.toponym.model.BoundaryCategory">
+        SELECT *
+        FROM public."B_A_T_SUBJECT"
+    </select>
+    <select id="findSUM" resultType="java.util.Map">
+        SELECT SUM("BOUNDARY_LENGTH")as "SUM_BOUNDARY_LENGTH",(SELECT count(*) FROM public."B_A_T_SUBJECT_A") as "ADMIN_NUM",
+               SUM("BOUNDARY_LINE_NUM")as "SUM_BOUNDARY_LINE_NUM",
+               SUM("TRIPLE_INTERSECTION_NUM")as"SUM_TRIPLE_INTERSECTION_NUM",SUM("BOUNDARY_POINT_NUM") as "SUM_BOUNDARY_POINT_NUM",
+               SUM("BOUNDARY_STONE_NUM") as "SUM_BOUNDARY_STONE_NUM"
+        FROM public."B_A_T_SUBJECT"
+    </select>
+    <select id="findByRank"  parameterType="String" resultType="java.util.Map">
+        SELECT *
+        FROM public."B_A_T_SUBJECT"
+        WHERE "CATEGORY"=#{rank}
+    </select>
+</mapper>

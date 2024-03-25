@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.AdminTpmMapper">
+    <select id="findAll" resultType="com.example.toponym.model.AdminTpm" >
+        SELECT *
+        FROM public."T_A_T_STAT_ADMIN_TPM"
+    </select>
+    <select id="findSUM" resultType="java.util.Map" >
+        SELECT SUM("STAT_TOTAL") as SUM_TPM,
+               (SUM("STAT_PUMPING_STATION")+SUM("STAT_POND")+SUM("STAT_SHIP_STATION")+SUM( "STAT_UNIT")+SUM("STAT_DAOBAN")+SUM("STAT_SIGN")+SUM("STAT_LAND")+SUM("STAT_FERRY")+
+                SUM("STAT_POWER_STATION")+SUM("STAT_HOUSE")+SUM( "STAT_DEVELOPMENT_ZONE")+SUM( "STAT_TRANSPORTATION_STOP")+SUM( "STAT_PARK")+SUM( "STAT_STADIUM")+
+                SUM( "STAT_SEAPORT")+SUM( "STAT_LAKE")+SUM( "STAT_ROUNDABOUT")+SUM( "STAT_RAILWAY_STATION")+SUM( "STAT_TOURIST_ATTRACTION")+SUM( "STAT_GAS_STATION")+
+                SUM( "STAT_WELL")+SUM( "STAT_SETTLEMENT")+SUM( "STAT_AGRICULTURE_AREA")+SUM( "STAT_SPRING")+SUM( "STAT_MASS_ORGANIZATION")+SUM( "STAT_MEMORIAL_SITE")+
+                SUM( "STAT_FOREST")+SUM( "STAT_MOUNTAIN")+SUM( "STAT_HILLOCK")+SUM( "STAT_TRANSMISSION_SUBSTATION")+SUM( "STAT_RESERVOIR")+SUM( "STAT_PAVILION")+
+                SUM( "STAT_PARKING_LOT")+SUM( "STAT_FLOOD_AREA")+SUM( "STAT_CANAL")+SUM( "STAT_COACH_STATION")+SUM( "STAT_ISLAND")+SUM( "STAT_NATURE_RESERVE")+
+                SUM( "STAT_RELIGIOUS_MONUMENT")+SUM( "STAT_IRRIGATION_DISTRICT"))as "point",
+               (SUM( "STAT_RIVER")+SUM("STAT_WALL")+SUM("STAT_ROAD")+SUM("STAT_AQUEDUCT")+SUM( "STAT_PIPELINE")+SUM( "STAT_IRRIGATION_CANAL")+SUM( "STAT_CULVERT")+
+                SUM( "STAT_EMBANKMENT")+SUM( "STAT_GUTTER")+SUM( "STAT_BRIDGE")+SUM( "STAT_RAILWAY")+SUM( "STAT_HIGHWAY")) as "line"
+        FROM public."T_A_T_STAT_ADMIN_TPM"
+    </select>
+    <select id="findByName"  parameterType="String" resultType="java.util.Map">
+        SELECT "ADMIN_NAME","${category}" as "COUNT"
+        FROM public."T_A_T_STAT_ADMIN_TPM"
+    </select>
+    <select id="findByRank"  parameterType="String" resultType="java.util.Map">
+        SELECT *
+        FROM public."T_A_T_STAT_ADMIN_TPM"
+        WHERE "ADMIN_NAME"=#{admin}
+    </select>
+    <select id="findByPop"  resultType="java.util.Map">
+        SELECT "ADMIN_NAME","STAT_POPULATION"
+        FROM public."T_A_T_STAT_ADMIN_TPM"
+        order by "STAT_POPULATION" desc
+    </select>
+
+    <select id="findByCategory"  resultType="java.util.Map">
+        SELECT "LARGE_CATEGORY","STAT_NUMBER"
+        FROM public."T_A_STAT_CATEGORY"
+    </select>
+
+   <select id="findByAdd" parameterType="String" resultType="java.util.Map">
+       SELECT jsonb_object_agg("STAT_INDEX","STAT_COUNT_ADD")AS "STAT_ADD"
+       FROM (
+       SELECT  '地域'AS "STAT_INDEX",jsonb_object_agg(t."ADMIN_NANE",t."COUNT")AS "STAT_COUNT_ADD"
+       FROM (SELECT "CONTENT"->>'ADMINISTRATIVE_DISTRICT' as "ADMIN_NANE",COUNT(*) AS "COUNT"
+             FROM public."T_P_ACTION"
+             WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+             GROUP BY "CONTENT"->>'ADMINISTRATIVE_DISTRICT')t
+       UNION
+       SELECT  '类别'AS "STAT_INDEX",jsonb_object_agg(t."CATEGORY",t."COUNT")AS "STAT_COUNT_ADD"
+       FROM (SELECT "CONTENT"->>'TOPONYMIC_CATEGORY' as "CATEGORY",COUNT(*) AS "COUNT"
+            FROM public."T_P_ACTION"
+            WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+            GROUP BY "CONTENT"->>'TOPONYMIC_CATEGORY')t
+       UNION
+       SELECT  '月份'AS "STAT_INDEX",jsonb_object_agg(t."MONTH",t."COUNT") AS "STAT_COUNT_ADD"
+       FROM (SELECT EXTRACT(MONTH FROM "TIME")AS "MONTH",COUNT(*) AS "COUNT"
+             FROM public."T_P_ACTION"
+             WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+             GROUP BY "MONTH")t )m
+   </select>
+
+    <select id="findByUpdate" parameterType="String" resultType="java.util.Map">
+        SELECT jsonb_object_agg("STAT_INDEX","STAT_COUNT_UPDATE")AS "STAT_UPDATE"
+        FROM(
+        SELECT   '地域'AS "STAT_INDEX",jsonb_object_agg(t."ADMIN_NANE",t."COUNT")AS "STAT_COUNT_UPDATE"
+        FROM (SELECT "CONTENT"->>'ADMINISTRATIVE_DISTRICT' as "ADMIN_NANE",COUNT(*) AS "COUNT"
+              FROM public."T_P_ACTION"
+              WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+
+              GROUP BY "CONTENT"->>'ADMINISTRATIVE_DISTRICT')t
+        UNION
+        SELECT  '类别'AS "STAT_INDEX",jsonb_object_agg(t."CATEGORY",t."COUNT") AS "STAT_COUNT_UPDATE"
+        FROM (SELECT "CONTENT"->>'TOPONYMIC_CATEGORY' as "CATEGORY",COUNT(*) AS "COUNT"
+              FROM public."T_P_ACTION"
+              WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+              GROUP BY "CONTENT"->>'TOPONYMIC_CATEGORY')t
+        UNION
+        SELECT  '月份'AS "STAT_INDEX",jsonb_object_agg(t."MONTH",t."COUNT") AS "STAT_COUNT_UPDATE"
+        FROM (SELECT EXTRACT(MONTH FROM "TIME")AS "MONTH",COUNT(*) AS "COUNT"
+              FROM public."T_P_ACTION"
+               WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错') AND to_char("TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+             GROUP BY "MONTH")t)m
+    </select>
+</mapper>

@@ -1,0 +1,52 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.BulkInsertMapper">
+
+    <!--    添加原表数据-->
+    <update id="insertSourceTable" statementType="STATEMENT">
+          COPY "T_S_DOORPLATE" FROM 'C:/source_data.txt' DELIMITER ',' CSV HEADER;
+    </update>
+
+    <!--    添加应用表数据-->
+    <update id="insertApplicationTable" statementType="STATEMENT">
+          COPY "D_A_DOORPLATE" FROM 'C:/application_data.txt' DELIMITER ',' CSV HEADER;
+    </update>
+
+    <!--    删除数据-->
+    <delete id="deleteData" parameterType="String">
+        delete from "doorplate"
+    </delete>
+
+    <!--    检索所有数据-->
+    <select id="findAllData" resultType="com.example.toponym.model.DoorPlateElement" >
+        select *
+        from "doorplate"
+    </select>
+
+    <select id="selectMaxUID" parameterType="java.util.List" resultType="Long">
+        <foreach collection="list" item="item" separator=";">
+            SELECT max(cast(uid as BIGINT)) AS max_uid
+            FROM "T_S_DOORPLATE"
+            WHERE 1=1
+            <if test="item.province != null">
+                AND province = #{item.province}
+            </if>
+            <if test="item.city != null">
+                AND city = #{item.city}
+            </if>
+            <if test="item.district != null">
+                AND district = #{item.district}
+            </if>
+            <if test="item.township != null">
+                AND township = #{item.township}
+            </if>
+            <if test="item.village != null">
+                AND village = #{item.village}
+            </if>
+        </foreach>
+    </select>
+
+
+
+
+
+</mapper>

@@ -1,0 +1,112 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.ActionMapper">
+    <!--    检验数据有效性-->
+    <select id="isValid" resultType="Boolean">
+        SELECT EXISTS(SELECT *
+        FROM "T_A_COMMON_INFO"
+        WHERE "IDENTIFICATION_CODE" = #{input_code})
+    </select>
+    <!--    添加数据-->
+    <insert id="addAction" parameterType="com.example.toponym.model.Action" useGeneratedKeys="true" keyProperty="GID">
+        <selectKey keyProperty="GID" resultType="Integer" order="AFTER">
+            SELECT currval('action_gid_seq')
+        </selectKey>
+        insert into "T_P_ACTION"("CONTENT","ACTION","ACTION_STATUS","REVIEW")
+        values (#{CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{ACTION},'未完成','未审核')
+    </insert>
+
+    <!--    地名审批-->
+    <update id="updateReview" useGeneratedKeys="true" keyProperty="GID">
+        update "T_P_ACTION"
+        <set>
+        <if test="REVIEW != null">
+            "REVIEW" = #{REVIEW},
+        </if>
+        </set>
+        WHERE "GID" = #{GID}
+    </update>
+
+    <!--    增加历史记录-->
+    <insert id="addHistory" parameterType="com.example.toponym.model.ToponymHistory" useGeneratedKeys="true" keyProperty="ID">
+        insert into "T_P_HISTORY"("IDENTIFICATION_CODE","NEW_CONTENT","OLD_CONTENT","UPDATE_ACTION")
+        values (#{IDENTIFICATION_CODE},#{NEW_CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{OLD_CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{UPDATE_ACTION})
+    </insert>
+
+    <!--    查看所有数据-->
+    <select id="findAll" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "T_P_ACTION"
+        ORDER BY "GID"
+    </select>
+    <!--    查看单条数据-->
+    <select id="findByGID" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "T_P_ACTION"
+        WHERE "GID" = #{gid}
+    </select>
+
+    <!--    更新生产表-->
+    <update id="updateAction" useGeneratedKeys="true" keyProperty="GID">
+        update "T_P_ACTION"
+        <set>
+            <if test="CONTENT != null">
+                "CONTENT" = #{CONTENT, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},
+            </if>
+            <if test="ACTION != null">
+                "ACTION" = #{ACTION},
+            </if>
+            <if test="REVIEW != null">
+                "REVIEW" = '未审核',
+            </if>
+            <if test="ACTION_STATUS != null">
+                "ACTION_STATUS" = '未完成',
+            </if>
+        </set>
+        WHERE "GID" = #{GID}
+    </update>
+
+    <!--    删除数据-->
+    <delete id="deleteAction" parameterType="Integer">
+        delete from "T_P_ACTION"
+        where "GID" = #{gid}
+    </delete>
+
+    <select id="getCategoryName" resultType="java.lang.String">
+        SELECT category_name
+        FROM "T_S_CATEGORY"
+        WHERE ${level} = #{code}
+    </select>
+
+    <select id="getCategoryCode" resultType="java.util.LinkedHashMap">
+        SELECT "category","large_category","medium_category","small_category","detailed_category"
+        FROM "T_S_CATEGORY"
+        WHERE category_name = #{category_name}
+    </select>
+
+    <select id="getToponymCode" resultType="java.lang.String">
+        SELECT "code"
+        FROM "T_S_ADMINISTRATION"
+        WHERE "township" = #{township}
+        ORDER BY "code" LIMIT 1
+    </select>
+
+    <select id="getCodeList" resultType="java.lang.String">
+        SELECT "TOPONYM_CODE"
+        FROM "T_A_COMMON_INFO"
+        WHERE "TOPONYM_CODE" like concat('%',#{toponym_code},'%')
+        ORDER BY "TOPONYM_CODE"
+    </select>
+
+    <select id="getTownshipCode" resultType="java.lang.String">
+        SELECT code
+        FROM "T_S_CITY"
+        WHERE pid = #{pid} and name = #{name}
+    </select>
+
+    <select id="codeIsValid" resultType="Boolean">
+        SELECT EXISTS(SELECT *
+        FROM "T_S_METADATA"
+        WHERE "CATEGORY" LIKE concat('%',#{category_code},'%'))
+    </select>
+
+</mapper>

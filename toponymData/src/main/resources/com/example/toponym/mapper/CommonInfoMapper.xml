@@ -1,0 +1,288 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.CommonInfoMapper">
+    <resultMap id="CommonInfoMap" type="java.util.LinkedHashMap">
+        <result property="GEOM" javaType="Object" jdbcType="OTHER"  typeHandler="com.example.toponym.common.JsonbTypeHandler" column="GEOM"/>
+        <result property="SPECIAL_INFORMATION" javaType="Object" jdbcType="OTHER"  typeHandler="com.example.toponym.common.JsonbTypeHandler" column="SPECIAL_INFORMATION"/>
+    </resultMap>
+
+    <select id="selectCount" resultType="java.lang.Integer">
+        select count(*) from "T_A_COMMON_INFO";
+    </select>
+
+    <!--    全文检索字符-->
+    <select id="selectFtsChar" parameterType="String" resultType="java.util.LinkedHashMap">
+        select
+        <foreach collection="params" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        from "T_A_COMMON_INFO"
+        where
+        to_tsvector('english',"FTS_CHAR") @@ to_tsquery('english',#{query})
+
+    </select>
+
+    <!--    全文检索词语-->
+    <select id="selectFtsWord" parameterType="String" resultType="java.util.LinkedHashMap">
+        select
+        <foreach collection="params" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        from "T_A_COMMON_INFO"
+        where
+        to_tsvector('english',"FTS_WORD") @@ to_tsquery('english',#{query})
+
+    </select>
+
+    <!--    分类检索-->
+    <select id="findInfo" resultType="java.util.LinkedHashMap">
+        SELECT
+        <foreach collection="array" item="param" open=" " separator="," close=" ">
+            "${param}"
+        </foreach>
+        FROM "T_A_COMMON_INFO"
+        WHERE 1=1
+        <if test="commonInfo.ADMINISTRATIVE_DISTRICT != null" >
+            and "ADMINISTRATIVE_DISTRICT" = #{commonInfo.ADMINISTRATIVE_DISTRICT}
+        </if>
+        <if test="commonInfo.SPECIAL_INFORMATION != null" >
+            and "SPECIAL_INFORMATION" @> #{commonInfo.SPECIAL_INFORMATION, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler}
+        </if>
+        <if test="commonInfo.CATEGORY_NAME != null" >
+            and "CATEGORY_NAME" @> #{commonInfo.CATEGORY_NAME, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler}
+        </if>
+        <if test="commonInfo.DIAGRAM_NAME != null" >
+            and "DIAGRAM_NAME" like concat('%',#{commonInfo.DIAGRAM_NAME},'%')
+        </if>
+    </select>
+
+    <!--    分类检索,返回所有字段-->
+    <select id="findByJson" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "T_A_COMMON_INFO"
+        WHERE 1=1
+        <if test="TOPONYMIC_CATEGORY != null" >
+            and "TOPONYMIC_CATEGORY" = #{TOPONYMIC_CATEGORY}
+        </if>
+        <if test="ADMINISTRATIVE_DISTRICT != null" >
+            and "ADMINISTRATIVE_DISTRICT" = #{ADMINISTRATIVE_DISTRICT}
+        </if>
+        <if test="SPECIAL_INFORMATION != null" >
+            and "SPECIAL_INFORMATION" @> #{SPECIAL_INFORMATION, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler}
+        </if>
+        <if test="DIAGRAM_NAME != null" >
+            and "DIAGRAM_NAME" like #{DIAGRAM_NAME}
+        </if>
+    </select>
+
+    <select id="findByIDENTIFICATION_CODE" parameterType="String" resultType="java.util.LinkedHashMap">
+        SELECT *
+        FROM "T_A_COMMON_INFO"
+        where "IDENTIFICATION_CODE" = #{IDENTIFICATION_CODE}
+    </select>
+
+    <select id="findByCode" parameterType="String" resultType = "com.example.toponym.model.CommonInfo">
+        SELECT "SPECIAL_INFORMATION"
+        FROM "T_A_COMMON_INFO"
+        where "IDENTIFICATION_CODE" = #{IDENTIFICATION_CODE}
+    </select>
+
+    <!--    查找一级响应字段-->
+    <select id="findPublicField"  resultType="java.lang.String">
+        SELECT "FIELD"
+        FROM "T_S_METADATA"
+        WHERE "RESPONSE_FIELD" = '1级'
+    </select>
+
+    <!--    添加数据-->
+    <insert id="addCommonInfo" parameterType="com.example.toponym.model.CommonInfo" useGeneratedKeys="true" keyProperty="IDENTIFICATION_CODE">
+        insert into "T_A_COMMON_INFO"("IDENTIFICATION_CODE","DIAGRAM_NAME","CATEGORY_CODE","USE_TIME","TOPONYM_CODE","GEOM","STANDARD_NAME","ALIAS","ABBREVIATION","FORMER_NAME","KANJI_WRITING","MINORITY_WRITING","ORIGINAL_PRONUNCIATION","MANDARIN_PRONUNCIATION","ROMAN_ALPHABET_SPELLING","TOPONYMIC_LANGUAGE","TOPONYMIC_CATEGORY","EAST_LONGITUDE","TO_EAST_LONGITUDE","NORTH_LATITUDE","TO_NORTHERN_LATITUDE","CENSUS_STATUS","ORIGINAL_IMAGE_NAME","FIGURE_NUMBER","SCALE","TOPONYM_ORIGIN","TOPONYM_MEANING","TOPONYM_HISTORY","SECRET_LEVEL","COORDINATE_SYSTEM","MEASUREMENT_METHOD","ENTITY_OVERVIEW","MULTIMEDIA_INFORMATION","SOURCE","REMARK","REGISTRATION_TIME","REGISTRANT","REGISTRATION_UNIT","COMMON_ROMAN_SPELLING","ESTABLISHMENT_YEAR","REPEAL_YEAR","ADMINISTRATIVE_DISTRICT","ADDITIONAL_INFORMATION","SPECIAL_INFORMATION","FTS_CHAR","FTS_WORD")
+        values (#{IDENTIFICATION_CODE},#{DIAGRAM_NAME},#{CATEGORY_CODE},#{USE_TIME},#{TOPONYM_CODE},#{GEOM, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{STANDARD_NAME},#{ALIAS},#{ABBREVIATION},#{FORMER_NAME},#{KANJI_WRITING},#{MINORITY_WRITING},#{ORIGINAL_PRONUNCIATION},#{MANDARIN_PRONUNCIATION},#{ROMAN_ALPHABET_SPELLING},#{TOPONYMIC_LANGUAGE},#{TOPONYMIC_CATEGORY},#{EAST_LONGITUDE},#{TO_EAST_LONGITUDE},#{NORTH_LATITUDE},#{TO_NORTHERN_LATITUDE},#{CENSUS_STATUS},#{ORIGINAL_IMAGE_NAME},#{FIGURE_NUMBER},#{SCALE},#{TOPONYM_ORIGIN},#{TOPONYM_MEANING},#{TOPONYM_HISTORY},#{SECRET_LEVEL},#{COORDINATE_SYSTEM},#{MEASUREMENT_METHOD},#{ENTITY_OVERVIEW},#{MULTIMEDIA_INFORMATION},#{SOURCE},#{REMARK},#{REGISTRATION_TIME},#{REGISTRANT},#{REGISTRATION_UNIT},#{COMMON_ROMAN_SPELLING},#{ESTABLISHMENT_YEAR},#{REPEAL_YEAR},#{ADMINISTRATIVE_DISTRICT},#{ADDITIONAL_INFORMATION},#{SPECIAL_INFORMATION, jdbcType=OTHER, typeHandler=com.example.toponym.common.JsonbTypeHandler},#{FTS_CHAR},#{FTS_WORD})
+    </insert>
+
+    <!--    删除数据-->
+    <delete id="deleteCommonInfo" parameterType="String">
+        delete from "T_A_COMMON_INFO"
+        where "IDENTIFICATION_CODE" = #{IDENTIFICATION_CODE}
+    </delete>
+
+    <!--    修改数据-->
+    <update id="updateCommonInfo" parameterType="com.example.toponym.model.CommonInfo" useGeneratedKeys="true" keyProperty="IDENTIFICATION_CODE">
+        update "T_A_COMMON_INFO"
+        <set>
+        <if test="DIAGRAM_NAME != null">
+            "DIAGRAM_NAME" = #{DIAGRAM_NAME},
+        </if>
+        <if test="CATEGORY_CODE != null">
+            "CATEGORY_CODE" = #{CATEGORY_CODE},
+        </if>
+        <if test="USE_TIME != null">
+            "USE_TIME" = #{USE_TIME},
+        </if>
+        <if test="TOPONYM_CODE != null">
+            "TOPONYM_CODE" = #{TOPONYM_CODE},
+        </if>
+        <if test="GEOM != null">
+            "GEOM" = #{GEOM,jdbcType=OTHER,typeHandler=com.example.toponym.common.JsonbTypeHandler},
+        </if>
+        <if test="STANDARD_NAME != null">
+            "STANDARD_NAME" = #{STANDARD_NAME},
+        </if>
+        <if test="ALIAS != null">
+            "ALIAS" = #{ALIAS},
+        </if>
+        <if test="ABBREVIATION != null">
+            "ABBREVIATION" = #{ABBREVIATION},
+        </if>
+        <if test="FORMER_NAME != null">
+            "FORMER_NAME" = #{FORMER_NAME},
+        </if>
+        <if test="KANJI_WRITING != null">
+            "KANJI_WRITING" = #{KANJI_WRITING},
+        </if>
+        <if test="MINORITY_WRITING != null">
+            "MINORITY_WRITING" = #{MINORITY_WRITING},
+        </if>
+        <if test="ORIGINAL_PRONUNCIATION != null">
+            "ORIGINAL_PRONUNCIATION" = #{ORIGINAL_PRONUNCIATION},
+        </if>
+        <if test="MANDARIN_PRONUNCIATION != null">
+            "MANDARIN_PRONUNCIATION" = #{MANDARIN_PRONUNCIATION},
+        </if>
+        <if test="ROMAN_ALPHABET_SPELLING != null">
+            "ROMAN_ALPHABET_SPELLING" = #{ROMAN_ALPHABET_SPELLING},
+        </if>
+        <if test="TOPONYMIC_LANGUAGE != null">
+            "TOPONYMIC_LANGUAGE" = #{TOPONYMIC_LANGUAGE},
+        </if>
+        <if test="TOPONYMIC_CATEGORY != null">
+            "TOPONYMIC_CATEGORY" = #{TOPONYMIC_CATEGORY},
+        </if>
+        <if test="EAST_LONGITUDE != null">
+            "EAST_LONGITUDE" = #{EAST_LONGITUDE},
+        </if>
+        <if test="TO_EAST_LONGITUDE != null">
+            "TO_EAST_LONGITUDE" = #{TO_EAST_LONGITUDE},
+        </if>
+        <if test="NORTH_LATITUDE != null">
+            "NORTH_LATITUDE" = #{NORTH_LATITUDE},
+        </if>
+        <if test="TO_NORTH_LATITUDE != null">
+            "TO_NORTH_LATITUDE" = #{TO_NORTH_LATITUDE},
+        </if>
+        <if test="CENSUS_STATUS != null">
+            "CENSUS_STATUS" = #{CENSUS_STATUS},
+        </if>
+        <if test="ORIGINAL_IMAGE_NAME != null">
+            "ORIGINAL_IMAGE_NAME" = #{ORIGINAL_IMAGE_NAME},
+        </if>
+        <if test="FIGURE_NUMBER != null">
+            "FIGURE_NUMBER" = #{FIGURE_NUMBER},
+        </if>
+        <if test="SCALE != null">
+            "SCALE" = #{SCALE},
+        </if>
+        <if test="TOPONYM_ORIGIN != null">
+            "TOPONYM_ORIGIN" = #{TOPONYM_ORIGIN},
+        </if>
+        <if test="TOPONYM_MEANING != null">
+            "TOPONYM_MEANING" = #{TOPONYM_MEANING},
+        </if>
+        <if test="TOPONYM_HISTORY != null">
+            "TOPONYM_HISTORY" = #{TOPONYM_HISTORY},
+        </if>
+        <if test="SECRET_LEVEL != null">
+            "SECRET_LEVEL" = #{SECRET_LEVEL},
+        </if>
+        <if test="COORDINATE_SYSTEM != null">
+            "COORDINATE_SYSTEM" = #{COORDINATE_SYSTEM},
+        </if>
+        <if test="MEASUREMENT_METHOD != null">
+            "MEASUREMENT_METHOD" = #{MEASUREMENT_METHOD},
+        </if>
+        <if test="ENTITY_OVERVIEW != null">
+            "ENTITY_OVERVIEW" = #{ENTITY_OVERVIEW},
+        </if>
+        <if test="MULTIMEDIA_INFORMATION != null">
+            "MULTIMEDIA_INFORMATION" = #{MULTIMEDIA_INFORMATION},
+        </if>
+        <if test="SOURCE != null">
+            "SOURCE" = #{SOURCE},
+        </if>
+        <if test="REMARK != null">
+            "REMARK" = #{REMARK},
+        </if>
+        <if test="REGISTRATION_TIME != null">
+            "REGISTRATION_TIME" = #{REGISTRATION_TIME},
+        </if>
+        <if test="REGISTRANT != null">
+            "REGISTRANT" = #{REGISTRANT},
+        </if>
+        <if test="REGISTRATION_UNIT != null">
+            "REGISTRATION_UNIT" = #{REGISTRATION_UNIT},
+        </if>
+        <if test="COMMON_ROMAN_SPELLING != null">
+            "COMMON_ROMAN_SPELLING" = #{COMMON_ROMAN_SPELLING},
+        </if>
+        <if test="ESTABLISHMENT_YEAR != null">
+            "ESTABLISHMENT_YEAR" = #{ESTABLISHMENT_YEAR},
+        </if>
+        <if test="REPEAL_YEAR != null">
+            "REPEAL_YEAR" = #{REPEAL_YEAR},
+        </if>
+        <if test="ADMINISTRATIVE_DISTRICT != null">
+            "ADMINISTRATIVE_DISTRICT" = #{ADMINISTRATIVE_DISTRICT},
+        </if>
+        <if test="ADDITIONAL_INFORMATION != null">
+            "ADDITIONAL_INFORMATION" = #{ADDITIONAL_INFORMATION},
+        </if>
+        <if test="SPECIAL_INFORMATION != null">
+            "SPECIAL_INFORMATION" = #{SPECIAL_INFORMATION,jdbcType=OTHER,typeHandler=com.example.toponym.common.JsonbTypeHandler},
+        </if>
+        <if test="FTS_CHAR != null">
+            "FTS_CHAR" = #{FTS_CHAR},
+        </if>
+        <if test="FTS_WORD != null">
+            "FTS_WORD" = #{FTS_WORD},
+        </if>
+        </set>
+        WHERE "IDENTIFICATION_CODE" = #{IDENTIFICATION_CODE}
+    </update>
+
+    <!--    返回所有地名,用于分词-->
+    <select id="getWord" resultType="java.lang.String">
+        SELECT "DIAGRAM_NAME"
+        FROM "T_A_COMMON_INFO"
+        ORDER BY "IDENTIFICATION_CODE" ASC
+    </select>
+
+    <select id="getCategory" resultType="java.lang.String">
+        SELECT "CATEGORY_NAME"->>'${level}'
+        FROM "T_S_METADATA"
+        WHERE "TABLE_EXPLAIN" != '公共字段' AND "TABLE_EXPLAIN" != '点状地名表' AND "TABLE_EXPLAIN" != '地名标志'
+    </select>
+
+    <select id="getNextCategory" resultType="java.lang.String">
+        SELECT "CATEGORY_NAME"->>'${nextLevel}'
+        FROM "T_S_METADATA"
+        WHERE "CATEGORY_NAME" ->> '${level}' = #{category}
+    </select>
+
+    <select id="getSpecialField" resultType="java.util.LinkedHashMap">
+        SELECT "FIELD","EXPLAIN"
+        FROM "T_S_METADATA"
+        WHERE "TABLE_EXPLAIN" = #{category}
+    </select>
+
+    <select id="getFieldExplain" resultType="java.lang.String">
+        SELECT "EXPLAIN"
+        FROM "T_S_METADATA"
+        WHERE "FIELD" = #{field} AND "CATEGORY" LIKE concat('%',#{category},'%')
+        ORDER BY "ID" LIMIT 1
+    </select>
+
+    <select id="selectAll"  resultType="com.example.toponym.model.CommonInfo">
+        select "IDENTIFICATION_CODE", "STANDARD_NAME","TOPONYMIC_CATEGORY","ESTABLISHMENT_YEAR","TOPONYM_ORIGIN","TOPONYM_MEANING","TOPONYM_HISTORY","ADMINISTRATIVE_DISTRICT"
+        from "T_A_COMMON_INFO"
+    </select>
+
+</mapper>

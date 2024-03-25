@@ -1,0 +1,17 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.SubjectMapper">
+    <resultMap id="MyMap" type="java.util.LinkedHashMap">
+      <result property="STAT_ID" column="STAT_ID"/>
+      <result property="STAT_SUB_NAME" column="STAT_SUB_NAME"/>
+      <result property="STAT_CONTENT" javaType="Object" jdbcType="OTHER"  typeHandler="com.example.toponym.common.JsonbTypeHandler" column="STAT_CONTENT"/>
+    </resultMap>
+    <select id="findAll" resultType="java.util.LinkedHashMap" >
+        SELECT "STAT_ID","STAT_SUB_NAME","STAT_CONTENT"
+        FROM public."T_A_T_STAT_SUBJECT"
+    </select>
+    <select id="findBySUB"  parameterType="String" resultType="java.util.LinkedHashMap">
+        SELECT "STAT_SUB_NAME","STAT_CONTENT"
+        FROM public."T_A_T_STAT_SUBJECT"
+        WHERE "STAT_SUB_NAME"=#{subname}
+    </select>
+</mapper>

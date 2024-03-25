@@ -1,0 +1,323 @@
+	:deep(.marker-tooltip12) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #2F89AD;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip12):before{
+		display: none;
+	}
+	:deep(.marker-tooltip13) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #288962;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip13):before{
+		display: none;
+	}
+	:deep(.marker-tooltip21) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #676767;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip21):before{
+		display: none;
+	}
+	:deep(.marker-tooltip22) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #777878;
+		font-family:"Microsoft YaHei";
+		font-size:11px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.1px white;
+	}
+	:deep(.marker-tooltip22):before{
+		display: none;
+	}
+	:deep(.marker-tooltip23) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #4172C0;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip23):before{
+		display: none;
+	}
+	:deep(.marker-tooltip24) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #378FD9;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip24):before{
+		display: none;
+	}
+	:deep(.marker-tooltip25) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #3D8F3D;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip25):before{
+		display: none;
+	}
+	:deep(.marker-tooltip26) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #D8771F;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip26):before{
+		display: none;
+	}
+	:deep(.marker-tooltip27) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #E55352;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip27):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-dp) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #D4603B;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-dp):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-ss) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #358F7E;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-ss):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-00) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #7F52AF;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-00):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-cityBdy) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #B0413D;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-cityBdy):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-countryBdy) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #8F6B1E;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-countryBdy):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-countyBdy) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #3D9347;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-countyBdy):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-vilBdy) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #9BA19A;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-vilBdy):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-waterAnno) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #4982C8;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-waterAnno):before{
+		display: none;
+	}
+	:deep(.marker-tooltip-black) {
+		white-space:normal;
+		max-width:130px;
+		width:max-content;
+		padding-left: 0;
+		background: none;
+		border: none;
+		box-shadow: none;
+		color: #484D59;
+		font-family:"Microsoft YaHei";
+		font-size:12px;
+		font-weight: bold;
+		-webkit-text-stroke: 0.2px white;
+		line-height:135%;
+	}
+	:deep(.marker-tooltip-black):before{
+		display: none;
+	}

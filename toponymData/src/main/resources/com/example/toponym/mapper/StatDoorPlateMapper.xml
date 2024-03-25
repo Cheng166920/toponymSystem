@@ -1,0 +1,81 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.toponym.mapper.StatDoorPlateMapper">
+    <select id="findAll" resultType="com.example.toponym.model.StatDoorPlate">
+        SELECT *
+        FROM public."T_A_T_STAT_DOORPLATE"
+    </select>
+    <select id="findSUM" resultType="java.util.Map">
+        SELECT count(*)as "SUM_DOORPLATE"
+        FROM public."T_S_DOORPLATE"
+    </select>
+    <select id="findByRoad"  parameterType="String" resultType="java.util.Map">
+        SELECT *
+        FROM public."T_A_T_STAT_DOORPLATE"
+        WHERE "ROAD"=#{road}
+    </select>
+    <select id="findRoad" resultType="java.util.Map">
+        SELECT *
+        FROM(SELECT Row_Number() OVER ( ORDER BY "STAT_DOORPLATE" DESC) as "RANK",m."ROAD", m."STAT_DOORPLATE"
+             FROM (SELECT "road" as "ROAD",count(*) as "STAT_DOORPLATE"
+                   FROM public."T_S_DOORPLATE"
+                   GROUP BY"road")m)t
+        WHERE "RANK" &lt;6
+    </select>
+    <select id="findTown" resultType="java.util.Map">
+        SELECT *
+        FROM(SELECT Row_Number() OVER ( ORDER BY "STAT_DOORPLATE" DESC) as "RANK",m."TOWNSHIP", m."STAT_DOORPLATE"
+            FROM (SELECT "township" as "TOWNSHIP",count(*) as "STAT_DOORPLATE"
+                  FROM public."T_S_DOORPLATE"
+                  GROUP BY"township")m)t
+        WHERE "RANK"&lt;6
+    </select>
+    <select id="findByAdd" parameterType="String" resultType="java.util.Map">
+        SELECT jsonb_object_agg("STAT_INDEX","STAT_COUNT_ADD")AS "STAT_ADD"
+        FROM (
+        SELECT  '地域'AS "STAT_INDEX",jsonb_object_agg(t."ADMIN_NANE",t."COUNT") AS "STAT_COUNT_ADD"
+        FROM (SELECT "CONTENT"->>'township' as "ADMIN_NANE",COUNT(*) AS "COUNT"
+              FROM public."T_P_DOORPLATE"
+              WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND "REVIEW"='审核通过' AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+             GROUP BY "CONTENT"->>'township')t
+        UNION
+        SELECT  '类别'AS "STAT_INDEX",jsonb_object_agg(t."CATEGORY",t."COUNT") AS "STAT_COUNT_ADD"
+        FROM (SELECT "CONTENT"->>'category' as "CATEGORY",COUNT(*) AS "COUNT"
+              FROM public."T_P_DOORPLATE"
+              WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND "REVIEW"='审核通过' AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+              GROUP BY "CONTENT"->>'category')t
+        UNION
+        SELECT  '月份'AS "STAT_INDEX",jsonb_object_agg(t."MONTH",t."COUNT") AS "STAT_COUNT_ADD"
+        FROM(SELECT EXTRACT(MONTH FROM "CREATE_TIME")AS "MONTH",COUNT(*) AS "COUNT"
+              FROM public."T_P_DOORPLATE"
+              WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务新增' OR "ACTION"='公众申报') AND "REVIEW"='审核通过' AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}
+              GROUP BY "MONTH")t)f
+    </select>
+
+    <select id="findByUpdate" parameterType="String" resultType="java.util.Map">
+        SELECT jsonb_object_agg("STAT_INDEX","STAT_COUNT_UPDATE")AS "STAT_UPDATE"
+        FROM(
+        SELECT  '地域'AS "STAT_INDEX",jsonb_object_agg(t."ADMIN_NANE",t."COUNT") AS "STAT_COUNT_UPDATE"
+        FROM (SELECT "township" as "ADMIN_NANE",COUNT(*) AS "COUNT"
+             FROM public."T_S_DOORPLATE"
+             INNER JOIN  (SELECT "CONTENT" FROM  public."T_P_DOORPLATE" WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错')AND "REVIEW"='审核通过'AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end})m
+             ON "T_S_DOORPLATE"."uid"= m."CONTENT"->>'uid'
+             GROUP BY "township")t
+        UNION
+        SELECT  '类别'AS "STAT_INDEX",jsonb_object_agg(t."CATEGORY",t."COUNT") AS "STAT_COUNT_UPDATE"
+         FROM (SELECT "category" as "CATEGORY",COUNT(*) AS "COUNT"
+              FROM public."T_S_DOORPLATE"
+              INNER JOIN  (SELECT "CONTENT" FROM  public."T_P_DOORPLATE" WHERE "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错')AND "REVIEW"='审核通过'AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end})m
+              ON "T_S_DOORPLATE"."uid"= m."CONTENT"->>'uid'
+             GROUP BY  "category")t
+        UNION
+        SELECT  '月份'AS "STAT_INDEX",jsonb_object_agg(t."MONTH",t."COUNT") AS "STAT_COUNT_UPDATE"
+        FROM (SELECT EXTRACT(MONTH FROM "CREATE_TIME")AS "MONTH",COUNT(*) AS "COUNT"
+              FROM (SELECT * FROM "T_P_DOORPLATE" as a
+              WHERE "CREATE_TIME"=(SELECT max(b."CREATE_TIME")
+              FROM "T_P_DOORPLATE" as b
+              WHERE a."CONTENT"->>'uid'=b."CONTENT"->>'uid'AND "ACTION_STATUS"='已完成'AND ("ACTION"='业务修改' OR "ACTION"='公众纠错')AND "REVIEW"='审核通过'AND to_char("CREATE_TIME",'yyyy-mm') BETWEEN  #{start} AND #{end}))m
+             INNER JOIN(SELECT *FROM  public."T_S_DOORPLATE")n
+              ON n."uid"= m."CONTENT"->>'uid'
+             GROUP BY "MONTH")t)f
+    </select>
+</mapper>
