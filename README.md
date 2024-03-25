@@ -1,4 +1,4 @@
-# toponymSystem/
+# toponymSystem
 
 ## 前端技术
 - Vue CLI
